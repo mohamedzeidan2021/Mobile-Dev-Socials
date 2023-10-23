@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Platform, View } from "react-native";
+import { Platform, View, Image, Text } from "react-native";
 import { Appbar, TextInput, Snackbar, Button } from "react-native-paper";
 import { getFileObjectAsync, uuid } from "../../../Utils";
 
@@ -17,6 +17,12 @@ import "firebase/firestore";
 import { SocialModel } from "../../../models/social";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../RootStackScreen";
+import DateTimePicker from "react-native-modal-datetime-picker";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { collection, getFirestore, setDoc } from "firebase/firestore";
+import { getApp } from "firebase/app";
+
+
 
 interface Props {
   navigation: StackNavigationProp<RootStackParamList, "NewSocialScreen">;
@@ -25,7 +31,7 @@ interface Props {
 export default function NewSocialScreen({ navigation }: Props) {
   /* TODO: Declare state variables for all of the attributes 
            that you need to keep track of on this screen.
-    
+  
      HINTS:
 
       1. There are five core attributes that are related to the social object.
@@ -34,20 +40,101 @@ export default function NewSocialScreen({ navigation }: Props) {
       4. There is one attribute for the loading indicator in the submit button.
   
   */
+  const [eventName, setEventName] = useState<string>("");
+  const [eventLocation, setEventLocation] = useState<string>("");
+  const [eventDescription, setEventDescription] = useState<string>("");
+  const [eventImage, setEventImage] = useState<string>("");
+  const [eventDate, setEventDate] = useState(0);
+
+  //attr from date pciker
+  const [datePicker, setDatePicker] = useState(new Date());
+
+  //snackbar
+  const [visible, setVisible] = React.useState(false);
+
+  //loading indicator
+  const [loading, setLoading] = useState<boolean>(false);
 
   // TODO: Follow the Expo Docs to implement the ImagePicker component.
   // https://docs.expo.io/versions/latest/sdk/imagepicker/
+  const pickImage = async () => {
+    
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    })
+
+    if (!result.canceled) {
+      setEventImage(result.assets[0].uri);
+    }
+
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Button onPress={pickImage}>Pick an image from camera roll</Button>
+        {eventImage && <Image source={{ uri: eventImage }} style={{ width: 200, height: 200 }} />}
+      </View>
+    );
+    
+  }
 
   // TODO: Follow the GitHub Docs to implement the react-native-modal-datetime-picker component.
   // https://github.com/mmazzarolo/react-native-modal-datetime-picker
+  const DateComponent = () => {
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+    const showDatePicker = () => {
+      setDatePickerVisibility(true);
+    };
+  
+    const hideDatePicker = () => {
+      setDatePickerVisibility(false);
+    };
+  
+    const handleConfirm = (date: Date) => {
+      console.warn("A date has been picked: ", eventDate);
+      hideDatePicker();
+    };
+  }
 
   // TODO: Follow the SnackBar Docs to implement the Snackbar component.
   // https://callstack.github.io/react-native-paper/snackbar.html
+  const MissingInfo = () => {
+  
+    const onToggleSnackBar = () => setVisible(!visible);
+  
+    const onDismissSnackBar = () => setVisible(false);
+  
+    return (
+      <View style={styles.container}>
+        <Button onPress={onToggleSnackBar}>{visible ? 'Hide' : 'Show'}</Button>
+        <Snackbar
+          visible={visible}
+          onDismiss={onDismissSnackBar}
+          action={{
+            label: 'Undo',
+            onPress: () => {
+              // Do something
+            },
+          }}>
+          Missing Information!
+        </Snackbar>
+      </View>
+    );
+  };
 
   const saveEvent = async () => {
     // TODO: Validate all fields (hint: field values should be stored in state variables).
     // If there's a field that is missing data, then return and show an error
-    // using the Snackbar.
+    // using the Snackbars
+
+    //validate fields
+    if (!eventName || !eventDate || !eventDescription || !eventImage || !eventLocation) {
+      setVisible(true);
+      MissingInfo();
+
+    }
 
     // Otherwise, proceed onwards with uploading the image, and then the object.
 
@@ -58,6 +145,33 @@ export default function NewSocialScreen({ navigation }: Props) {
 
       // (0) Firebase Cloud Storage wants a Blob, so we first convert the file path
       // saved in our eventImage state variable to a Blob.
+      
+      //convert image to blob
+      const asyncAwaitNetworkRequests = async () => {
+        //fetch file data have to make as blob for stupid ts
+        const object = (await getFileObjectAsync(eventImage)) as Blob;
+        //init Firestore data connection
+        const db = getFirestore();
+        //init firebase cloud storage connection
+        const storage = getStorage(getApp());
+        //makes reference to where exactly the image file will be stored
+        const storageRef = ref(storage, uuid() + ".jpg");
+        //upload the image to location specified by storageRef
+        const result = await uploadBytes(storageRef, object);
+        //grabs the downloaded url for uploaded image
+        const downloadURL = await getDownloadURL(result.ref);
+        //social data
+        const socialDoc: SocialModel = {
+          eventName: eventName,
+          eventDate: eventDate, //removed getTime
+          eventLocation: eventLocation,
+          eventDescription: eventDescription,
+          eventImage: downloadURL,
+        };
+        const socialRef = collection(db, "socials")
+        //await setDoc(socialRef, socialDoc);
+        console.log("Finished social creation.");
+      };
 
       // (1) Write the image to Firebase Cloud Storage. Make sure to do this
       // using an "await" keyword, since we're in an async function. Name it using
@@ -92,9 +206,27 @@ export default function NewSocialScreen({ navigation }: Props) {
     <>
       <Bar />
       <View style={{ ...styles.container, padding: 20 }}>
-        {/* TextInput */}
-        {/* TextInput */}
-        {/* TextInput */}
+        {/* TextInput */
+        <TextInput
+         label='eventName'
+         value = {eventName}
+         onChangeText={eventName => setEventName(eventName)}
+         ></TextInput>
+        }
+
+        {<Text>{"\n\n"}</Text>}
+        
+        {/* TextInput */
+        <TextInput
+        label='eventLocation'
+        value = {eventLocation}
+        onChangeText={eventLocation => setEventLocation(eventLocation)}
+        ></TextInput>
+        }
+
+        {/* TextInput */
+        
+        }
         {/* Button */}
         {/* Button */}
         {/* Button */}

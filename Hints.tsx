@@ -75,7 +75,8 @@ const regularNetworkRequests = () => {
 // Also note that this isn't exactly the solution. Close, but not quite.
 // Make sure you read through the Firebase documentation to understand what's going on and what's missing.
 const asyncAwaitNetworkRequests = async () => {
-  const object = await getFileObjectAsync(eventImage);
+
+  const object = await getFileObjectAsync(eventImage); 
   const db = getFirestore();
   const storage = getStorage(getApp());
   const storageRef = ref(storage, uuid() + ".jpg");

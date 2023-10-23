@@ -19,6 +19,8 @@ import { NavigationContainer } from "@react-navigation/native";
 
 // This is a TypeScript Type that defines the parameters of this stack.
 // Read More: https://reactnavigation.org/docs/typescript/
+
+//basically is an object that defines apps nav stack
 export type RootStackParamList = {
   Main: undefined;
   NewSocialScreen: undefined;
@@ -35,7 +37,7 @@ export function RootStackScreen() {
     <NavigationContainer>
       <RootStack.Navigator
         screenOptions={{ presentation: "modal" }}
-        initialRouteName="Main"
+        initialRouteName="NewSocialScreen"
       >
         <RootStack.Screen
           name="Main"

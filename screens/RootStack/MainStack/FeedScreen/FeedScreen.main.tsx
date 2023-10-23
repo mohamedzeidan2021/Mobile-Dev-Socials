@@ -7,6 +7,7 @@ import { SocialModel } from "../../../../models/social.js";
 import { styles } from "./FeedScreen.styles";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { MainStackParamList } from "../MainStackScreen.js";
+import { collection, getFirestore } from "firebase/firestore";
 
 /* HOW TYPESCRIPT WORKS WITH PROPS:
 
@@ -31,6 +32,7 @@ export default function FeedScreen({ navigation }: Props) {
     When we call useState(), we can define the type of the state
     variable using something like this:
         const [myList, setMyList] = useState<MyModelType[]>([]); */
+  const [socialsList, addAnotherSocial] = useState<SocialModel[]>([]);  
 
   /*
     TODO: In a useEffect hook, start a Firebase observer to listen to the "socials" node in Firestore.
@@ -46,6 +48,13 @@ export default function FeedScreen({ navigation }: Props) {
       4. It's probably wise to make sure you can create new socials before trying to 
           load socials on this screen.
   */
+  useEffect(() => {
+    const db = getFirestore();
+    const socialsRef = collection(db, 'socials'); //connect to 
+  })
+
+
+  
 
   const renderItem = ({ item }: { item: SocialModel }) => {
     // TODO: Return a Card corresponding to the social object passed in
