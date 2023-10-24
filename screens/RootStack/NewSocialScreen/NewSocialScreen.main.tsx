@@ -78,25 +78,24 @@ export default function NewSocialScreen({ navigation }: Props) {
     );
     
   }
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   // TODO: Follow the GitHub Docs to implement the react-native-modal-datetime-picker component.
   // https://github.com/mmazzarolo/react-native-modal-datetime-picker
-  const DateComponent = () => {
-    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
-    const showDatePicker = () => {
-      setDatePickerVisibility(true);
-    };
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date: Date) => {
+    console.warn("A date has been picked: ", eventDate);
+    hideDatePicker();
+  };
   
-    const hideDatePicker = () => {
-      setDatePickerVisibility(false);
-    };
-  
-    const handleConfirm = (date: Date) => {
-      console.warn("A date has been picked: ", eventDate);
-      hideDatePicker();
-    };
-  }
 
   // TODO: Follow the SnackBar Docs to implement the Snackbar component.
   // https://callstack.github.io/react-native-paper/snackbar.html
@@ -224,10 +223,27 @@ export default function NewSocialScreen({ navigation }: Props) {
         ></TextInput>
         }
 
+        {<Text>{"\n\n"}</Text>}
+
         {/* TextInput */
+        <TextInput
+        label='eventDescription' 
+        value = {eventDescription} 
+        onChangeText={eventDescription => setEventDescription(eventDescription)}
+        ></TextInput>
+        }
+        <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+        />
+        {/* Button */
+
+        <Button onPress={showDatePicker}>Choose a Date</Button>
+
         
         }
-        {/* Button */}
         {/* Button */}
         {/* Button */}
         {/* DateTimePickerModal */}
