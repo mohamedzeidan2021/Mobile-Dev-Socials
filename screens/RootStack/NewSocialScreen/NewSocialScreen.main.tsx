@@ -44,7 +44,7 @@ export default function NewSocialScreen({ navigation }: Props) {
   const [eventLocation, setEventLocation] = useState<string>("");
   const [eventDescription, setEventDescription] = useState<string>("");
   const [eventImage, setEventImage] = useState<string>("");
-  const [eventDate, setEventDate] = useState(0);
+  const [eventDate, setEventDate] = useState<Date>();
 
   //attr from date pciker
   const [datePicker, setDatePicker] = useState(new Date());
@@ -57,6 +57,9 @@ export default function NewSocialScreen({ navigation }: Props) {
 
   // TODO: Follow the Expo Docs to implement the ImagePicker component.
   // https://docs.expo.io/versions/latest/sdk/imagepicker/
+  const [image, setImage] = useState(null);
+
+  
   const pickImage = async () => {
     
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -92,6 +95,7 @@ export default function NewSocialScreen({ navigation }: Props) {
   };
 
   const handleConfirm = (date: Date) => {
+    setEventDate(date)
     console.warn("A date has been picked: ", eventDate);
     hideDatePicker();
   };
@@ -122,7 +126,7 @@ export default function NewSocialScreen({ navigation }: Props) {
       </View>
     );
   };
-
+  
   const saveEvent = async () => {
     // TODO: Validate all fields (hint: field values should be stored in state variables).
     // If there's a field that is missing data, then return and show an error
@@ -162,34 +166,21 @@ export default function NewSocialScreen({ navigation }: Props) {
         //social data
         const socialDoc: SocialModel = {
           eventName: eventName,
-          eventDate: eventDate, //removed getTime
+          eventDate: eventDate !== undefined ? eventDate.getDate() : new Date().getDate(), // Convert to timestamp
           eventLocation: eventLocation,
           eventDescription: eventDescription,
           eventImage: downloadURL,
         };
         const socialRef = collection(db, "socials")
         //await setDoc(socialRef, socialDoc);
-        console.log("Finished social creation.");
       };
 
-      // (1) Write the image to Firebase Cloud Storage. Make sure to do this
-      // using an "await" keyword, since we're in an async function. Name it using
-      // the uuid provided below.
-
-      // (2) Get the download URL of the file we just wrote. We're going to put that
-      // download URL into Firestore (where our data itself is stored). Make sure to
-      // do this using an async keyword.
-
-      // (3) Construct & write the social model to the "socials" collection in Firestore.
-      // The eventImage should be the downloadURL that we got from (3).
-      // Make sure to do this using an async keyword.
-      
-      // (4) If nothing threw an error, then go back to the previous screen.
-      //     Otherwise, show an error.
-
+      console.log("Finished writing social.")
     } catch (e) {
       console.log("Error while writing social:", e);
     }
+
+    navigation.goBack();
   };
 
   const Bar = () => {
@@ -205,47 +196,50 @@ export default function NewSocialScreen({ navigation }: Props) {
     <>
       <Bar />
       <View style={{ ...styles.container, padding: 20 }}>
-        {/* TextInput */
+        {/* TextInput */}
         <TextInput
          label='eventName'
          value = {eventName}
          onChangeText={eventName => setEventName(eventName)}
          ></TextInput>
-        }
+        
 
         {<Text>{"\n\n"}</Text>}
         
-        {/* TextInput */
+        {/* TextInput */}
         <TextInput
         label='eventLocation'
         value = {eventLocation}
         onChangeText={eventLocation => setEventLocation(eventLocation)}
         ></TextInput>
-        }
+        
 
         {<Text>{"\n\n"}</Text>}
 
-        {/* TextInput */
+        {/* TextInput */}
         <TextInput
         label='eventDescription' 
         value = {eventDescription} 
         onChangeText={eventDescription => setEventDescription(eventDescription)}
         ></TextInput>
-        }
+        
         <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
         />
-        {/* Button */
-
+        {/* Button */}
         <Button onPress={showDatePicker}>Choose a Date</Button>
 
         
-        }
+      
         {/* Button */}
+        <Button onPress={pickImage}>Pick an Image</Button>
+
         {/* Button */}
+        <Button onPress={saveEvent}>Save Event</Button>
+
         {/* DateTimePickerModal */}
         {/* Snackbar */}
       </View>

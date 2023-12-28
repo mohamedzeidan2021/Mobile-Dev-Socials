@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList } from "react-native";
-import { Appbar, Card } from "react-native-paper";
+import { View, FlatList, Text } from "react-native";
+import { Appbar, Card, Paragraph, Title } from "react-native-paper";
 import firebase from "firebase/app";
 import "firebase/firestore";
 import { SocialModel } from "../../../../models/social.js";
 import { styles } from "./FeedScreen.styles";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { MainStackParamList } from "../MainStackScreen.js";
-import { collection, getFirestore } from "firebase/firestore";
+import { DocumentSnapshot, Firestore, QuerySnapshot, onSnapshot } from "firebase/firestore";
+import firestore from '@react-native-firebase/firestore';
+import { TouchableOpacity } from "react-native-gesture-handler";
+import DetailScreen from "../DetailScreen/DetailScreen.main.js";
+
+
 
 /* HOW TYPESCRIPT WORKS WITH PROPS:
 
@@ -27,12 +32,11 @@ interface Props {
 
 export default function FeedScreen({ navigation }: Props) {
   // TODO: Initialize a list of SocialModel objects in state.
-
   /* TYPESCRIPT HINT: 
     When we call useState(), we can define the type of the state
     variable using something like this:
         const [myList, setMyList] = useState<MyModelType[]>([]); */
-  const [socialsList, addAnotherSocial] = useState<SocialModel[]>([]);  
+    const [allSocials, setAllSocials] = useState<SocialModel[]>([]);
 
   /*
     TODO: In a useEffect hook, start a Firebase observer to listen to the "socials" node in Firestore.
@@ -48,20 +52,56 @@ export default function FeedScreen({ navigation }: Props) {
       4. It's probably wise to make sure you can create new socials before trying to 
           load socials on this screen.
   */
-  useEffect(() => {
-    const db = getFirestore();
-    const socialsRef = collection(db, 'socials'); //connect to 
-  })
-
-
+  // useEffect(() => {
+  //   const socialsData : any[] = []
+  //   // const subscriber = firestore()
+  //   // .collection('Users')
+  //   // .get()
+  //   // .then(querySnapshot => {
   
+  //   //   querySnapshot.forEach(documentSnapshot => {
+  //   //     console.log('User ID: ', documentSnapshot.id, documentSnapshot.data());
+        
+  //   //   });
+  //   // });
+  // }, []);
+
+  //   const subscriber = firestore().collection('socials').onSnapshot(
+  //     querySnapshot => {
+  //       const socials: SocialModel[] = [];
+  //       querySnapshot.forEach(documentSnapshot => {
+  //         const socialData = documentSnapshot.data() as SocialModel;
+  //         socials.push({
+  //           ...socialData,
+  //           id: documentSnapshot.id,
+  //         });
+  //       });
+
+  //       setAllSocials(socials);
+  //       console.log(allSocials);
+  //     }
+  //   );
+    
+  //   return () => subscriber();
+
+  // }, []);
 
   const renderItem = ({ item }: { item: SocialModel }) => {
     // TODO: Return a Card corresponding to the social object passed in
     // to this function. On tapping this card, navigate to DetailScreen
     // and pass this social.
-
-    return null;
+    return (
+      <TouchableOpacity onPress={() => navigation.navigate('DetailScreen', {social : item})}>
+        <Card>
+          <Card.Title title="Card Title" subtitle="Card Subtitle" />
+          <Card.Content>
+              <Title>{item.eventName}</Title>
+              <Paragraph>{item.eventLocation} | {item.eventDate}</Paragraph>
+          </Card.Content>
+          <Card.Cover source={{uri: item.eventImage}} />
+      </Card>
+      </TouchableOpacity>
+    );
   };
 
   const NavigationBar = () => {
@@ -74,6 +114,10 @@ export default function FeedScreen({ navigation }: Props) {
       {/* Embed your NavigationBar here. */}
       <View style={styles.container}>
         {/* Return a FlatList here. You'll need to use your renderItem method. */}
+        <FlatList 
+          data={allSocials} 
+          renderItem={renderItem}
+        />
       </View>
     </>
   );

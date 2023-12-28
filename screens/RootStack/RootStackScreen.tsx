@@ -37,7 +37,7 @@ export function RootStackScreen() {
     <NavigationContainer>
       <RootStack.Navigator
         screenOptions={{ presentation: "modal" }}
-        initialRouteName="NewSocialScreen"
+        initialRouteName="Main"
       >
         <RootStack.Screen
           name="Main"
