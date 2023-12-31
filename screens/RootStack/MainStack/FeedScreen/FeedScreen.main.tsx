@@ -53,17 +53,17 @@ export default function FeedScreen({ navigation }: Props) {
           load socials on this screen.
   */
   // useEffect(() => {
-  //   const socialsData : any[] = []
-  //   // const subscriber = firestore()
-  //   // .collection('Users')
-  //   // .get()
-  //   // .then(querySnapshot => {
+    // const socialsData : any[] = []
+    // const subscriber = firestore()
+    // .collection('Users')
+    // .get();
+  //   .then(querySnapshot => {
   
-  //   //   querySnapshot.forEach(documentSnapshot => {
-  //   //     console.log('User ID: ', documentSnapshot.id, documentSnapshot.data());
+  //     querySnapshot.forEach(documentSnapshot => {
+  //       console.log('User ID: ', documentSnapshot.id, documentSnapshot.data());
         
-  //   //   });
-  //   // });
+  //     });
+  //   });
   // }, []);
 
   //   const subscriber = firestore().collection('socials').onSnapshot(

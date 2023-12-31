@@ -149,29 +149,29 @@ export default function NewSocialScreen({ navigation }: Props) {
       // (0) Firebase Cloud Storage wants a Blob, so we first convert the file path
       // saved in our eventImage state variable to a Blob.
       
-      //convert image to blob
-      const asyncAwaitNetworkRequests = async () => {
-        //fetch file data have to make as blob for stupid ts
-        const object = (await getFileObjectAsync(eventImage)) as Blob;
-        //init Firestore data connection
-        const db = getFirestore();
-        //init firebase cloud storage connection
-        const storage = getStorage(getApp());
-        //makes reference to where exactly the image file will be stored
-        const storageRef = ref(storage, uuid() + ".jpg");
-        //upload the image to location specified by storageRef
-        const result = await uploadBytes(storageRef, object);
-        //grabs the downloaded url for uploaded image
-        const downloadURL = await getDownloadURL(result.ref);
-        //social data
-        const socialDoc: SocialModel = {
-          eventName: eventName,
-          eventDate: eventDate !== undefined ? eventDate.getDate() : new Date().getDate(), // Convert to timestamp
-          eventLocation: eventLocation,
-          eventDescription: eventDescription,
-          eventImage: downloadURL,
-        };
-        const socialRef = collection(db, "socials")
+        //convert image to blob
+        const asyncAwaitNetworkRequests = async () => {
+          //fetch file data have to make as blob for stupid ts
+          const object = (await getFileObjectAsync(eventImage)) as Blob;
+          //init Firestore data connection
+          const db = getFirestore();
+          //init firebase cloud storage connection
+          const storage = getStorage(getApp());
+          //makes reference to where exactly the image file will be stored
+          const storageRef = ref(storage, uuid() + ".jpg");
+          //upload the image to location specified by storageRef
+          const result = await uploadBytes(storageRef, object);
+          //grabs the downloaded url for uploaded image
+          const downloadURL = await getDownloadURL(result.ref);
+          //social data
+          const socialDoc: SocialModel = {
+            eventName: eventName,
+            eventDate: eventDate !== undefined ? eventDate.getDate() : new Date().getDate(), // Convert to timestamp
+            eventLocation: eventLocation,
+            eventDescription: eventDescription,
+            eventImage: downloadURL,
+          };
+          const socialRef = collection(db, "socials")
         //await setDoc(socialRef, socialDoc);
       };
 
